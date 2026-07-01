@@ -1,1 +1,960 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For My Beloved Basma ❤️</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;1,400;1,600&family=Dancing+Script:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        playfair: ['Playfair Display', 'serif'],
+                        dancing: ['Dancing Script', 'cursive'],
+                        inter: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        ::selection { background: #e11d48; color: #fff; }
+        body { font-family: 'Inter', sans-serif; background: #0d0208; color: #fce7f3; overflow-x: hidden; }
+        
+        #welcome { position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; background: #0d0208; transition: opacity 1s ease, visibility 1s ease; }
+        #welcome.hide { opacity: 0; visibility: hidden; pointer-events: none; }
+        #welcome::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 30% 50%, rgba(225,29,72,0.15), transparent 60%), radial-gradient(circle at 70% 30%, rgba(236,72,153,0.1), transparent 50%); }
+        
+        #bgCanvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+        
+        .floating-cat { position: fixed; z-index: 1; pointer-events: none; font-size: 2rem; animation: floatCat var(--dur) ease-in-out infinite; opacity: 0.6; }
+        @keyframes floatCat {
+            0%, 100% { transform: translateY(0px) rotate(var(--rot1)); }
+            50% { transform: translateY(var(--ty)) rotate(var(--rot2)); }
+        }
+        
+        .heart-particle { position: fixed; pointer-events: none; z-index: 9998; font-size: 1.5rem; animation: heartBurst 1.5s ease-out forwards; }
+        @keyframes heartBurst {
+            0% { opacity: 1; transform: translate(0, 0) scale(1); }
+            100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(0.3); }
+        }
+        
+        @keyframes glowPulse {
+            0%, 100% { box-shadow: 0 0 20px rgba(225,29,72,0.3), 0 0 60px rgba(225,29,72,0.1); }
+            50% { box-shadow: 0 0 40px rgba(225,29,72,0.5), 0 0 100px rgba(225,29,72,0.2); }
+        }
+        
+        @keyframes gentleFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+        }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .slide-up { animation: slideUp 0.8s ease-out forwards; }
+        .slide-up-d1 { animation-delay: 0.1s; opacity: 0; }
+        .slide-up-d2 { animation-delay: 0.2s; opacity: 0; }
+        .slide-up-d3 { animation-delay: 0.3s; opacity: 0; }
+        .slide-up-d4 { animation-delay: 0.4s; opacity: 0; }
+        .slide-up-d5 { animation-delay: 0.5s; opacity: 0; }
+        .slide-up-d6 { animation-delay: 0.6s; opacity: 0; }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+        .shake { animation: shake 0.6s ease-in-out; }
+        
+        @keyframes successGlow {
+            0% { box-shadow: 0 0 20px rgba(225,29,72,0.5); }
+            50% { box-shadow: 0 0 60px rgba(225,29,72,0.8), 0 0 100px rgba(236,72,153,0.4); }
+            100% { box-shadow: 0 0 20px rgba(225,29,72,0.5); }
+        }
+        
+        .confetti { position: fixed; top: -10px; z-index: 9997; pointer-events: none; animation: confettiFall var(--fall-dur) linear forwards; }
+        @keyframes confettiFall {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+        }
+        
+        .word-card { cursor: pointer; transition: all 0.3s ease; user-select: none; }
+        .word-card:hover { transform: scale(1.08); }
+        .word-card:active { transform: scale(0.95); }
+        .word-card.placed { opacity: 0.3; pointer-events: none; transform: scale(0.9); }
+        
+        .result-slot {
+            min-width: 90px; min-height: 50px;
+            border: 2px dashed rgba(225,29,72,0.4); border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.3s ease;
+        }
+        .result-slot.filled { border: 2px solid rgba(225,29,72,0.8); background: rgba(225,29,72,0.15); }
+        .result-slot.correct { border-color: #22c55e; background: rgba(34,197,94,0.15); }
+        .result-slot.wrong { border-color: #ef4444; background: rgba(239,68,68,0.15); }
+        
+        .promise-card {
+            background: rgba(225,29,72,0.08); border: 1px solid rgba(225,29,72,0.2);
+            border-radius: 16px; padding: 20px 24px; transition: all 0.4s ease;
+        }
+        .promise-card:hover {
+            background: rgba(225,29,72,0.15); border-color: rgba(225,29,72,0.4);
+            transform: translateY(-4px); box-shadow: 0 10px 40px rgba(225,29,72,0.15);
+        }
+        
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0d0208; }
+        ::-webkit-scrollbar-thumb { background: #e11d48; border-radius: 3px; }
+        
+        .music-btn {
+            position: fixed; bottom: 20px; right: 20px; z-index: 100;
+            width: 50px; height: 50px; border-radius: 50%;
+            background: rgba(225,29,72,0.8); border: 2px solid rgba(255,255,255,0.2);
+            color: white; font-size: 1.2rem; cursor: pointer;
+            backdrop-filter: blur(10px); transition: all 0.3s ease; display: none;
+        }
+        .music-btn:hover { transform: scale(1.1); background: rgba(225,29,72,1); }
+        .music-btn.playing { animation: glowPulse 2s ease-in-out infinite; }
+        
+        .romantic-section { position: relative; }
+        .romantic-section::before {
+            content: ''; position: absolute; inset: 0;
+            background: radial-gradient(ellipse at 50% 0%, rgba(225,29,72,0.08), transparent 70%);
+            pointer-events: none;
+        }
+        
+        /* Cat Button Style */
+        .cat-enter-btn {
+            position: relative;
+            background: linear-gradient(135deg, #e11d48, #ec4899);
+            border: 2px solid rgba(255,255,255,0.15);
+            border-radius: 20px;
+            padding: 16px 44px;
+            color: white;
+            font-family: 'Dancing Script', cursive;
+            font-size: 1.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            animation: glowPulse 2.5s ease-in-out infinite;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .cat-enter-btn:hover {
+            transform: scale(1.07);
+            box-shadow: 0 0 50px rgba(225,29,72,0.6), 0 0 100px rgba(236,72,153,0.3);
+        }
+        .cat-enter-btn:active { transform: scale(0.97); }
+        .cat-enter-btn .cat-icon {
+            font-size: 2rem;
+            animation: gentleFloat 2s ease-in-out infinite;
+        }
+        
+        /* Cat ears on button */
+        .cat-ears {
+            position: absolute;
+            top: -14px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 40px;
+        }
+        .cat-ear {
+            width: 0; height: 0;
+            border-left: 12px solid transparent;
+            border-right: 12px solid transparent;
+            border-bottom: 18px solid #e11d48;
+            filter: drop-shadow(0 0 4px rgba(225,29,72,0.5));
+        }
+        .cat-ear-inner {
+            width: 0; height: 0;
+            border-left: 7px solid transparent;
+            border-right: 7px solid transparent;
+            border-bottom: 11px solid #fda4af;
+            position: absolute;
+            top: 5px;
+            left: -7px;
+        }
+        
+        /* Counter */
+        .counter-box {
+            background: rgba(225,29,72,0.08);
+            border: 1px solid rgba(225,29,72,0.25);
+            border-radius: 20px;
+            padding: 24px 32px;
+            backdrop-filter: blur(8px);
+            animation: glowPulse 3s ease-in-out infinite;
+        }
+        .counter-number {
+            font-family: 'Dancing Script', cursive;
+            font-size: 3.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fda4af, #e11d48, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.1;
+        }
+        @media (min-width: 768px) {
+            .counter-number { font-size: 5rem; }
+        }
+        .counter-unit {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: rgba(253,164,175,0.6);
+        }
+        .counter-separator {
+            font-family: 'Dancing Script', cursive;
+            font-size: 2rem;
+            color: rgba(225,29,72,0.4);
+            animation: gentleFloat 2s ease-in-out infinite;
+        }
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            15% { transform: scale(1.15); }
+            30% { transform: scale(1); }
+            45% { transform: scale(1.1); }
+        }
+        .heartbeat { animation: heartbeat 1.5s ease-in-out infinite; }
+    </style>
+</head>
+<body>
 
+<canvas id="bgCanvas"></canvas>
+<div id="catsContainer"></div>
+
+<!-- ======================== WELCOME SCREEN ======================== -->
+<div id="welcome">
+    <div class="text-center relative z-10 px-6">
+        <div class="text-6xl mb-6" style="animation: gentleFloat 3s ease-in-out infinite;">🐱</div>
+        <h1 class="font-dancing text-5xl md:text-7xl text-rose-400 mb-4 slide-up">For You, My Love</h1>
+        <p class="font-playfair text-xl md:text-2xl text-pink-200/70 mb-3 slide-up slide-up-d1">A little gift from my heart to yours</p>
+        <p class="font-inter text-sm text-pink-300/40 mb-10 slide-up slide-up-d2">Since June 22, 2023 — Forever</p>
+        
+        <div class="slide-up slide-up-d3 flex justify-center">
+            <button id="enterBtn" class="cat-enter-btn">
+                <div class="cat-ears">
+                    <div class="cat-ear"><div class="cat-ear-inner"></div></div>
+                    <div class="cat-ear"><div class="cat-ear-inner"></div></div>
+                </div>
+                <span class="cat-icon">😺</span>
+                <span>Open My Heart</span>
+                <span class="cat-icon" style="animation-delay: 0.5s;">💕</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ======================== MAIN CONTENT ======================== -->
+<main id="mainContent" class="relative z-10 hidden">
+
+    <!-- ====== LOVE COUNTER + PUZZLE SECTION ====== -->
+    <section id="puzzleSection" class="min-h-screen flex flex-col items-center justify-center px-4 py-16 romantic-section">
+        <div class="absolute top-6 left-6 text-4xl" style="animation: gentleFloat 4s ease-in-out infinite;">😺</div>
+        <div class="absolute top-6 right-6 text-4xl" style="animation: gentleFloat 3.5s ease-in-out infinite 0.5s;">😸</div>
+        <div class="absolute bottom-10 left-10 text-3xl" style="animation: gentleFloat 5s ease-in-out infinite 1s;">😻</div>
+        <div class="absolute bottom-10 right-10 text-3xl" style="animation: gentleFloat 4.5s ease-in-out infinite 1.5s;">🐱</div>
+        
+        <div class="max-w-2xl w-full text-center">
+            
+            <!-- LOVE COUNTER -->
+            <div class="mb-14">
+                <p class="font-inter text-xs uppercase tracking-[0.3em] text-rose-400/60 mb-2">✦ Our Love Timer ✦</p>
+                <h3 class="font-dancing text-2xl md:text-3xl text-rose-300 mb-6">We've Been In Love For</h3>
+                
+                <div class="counter-box max-w-lg mx-auto">
+                    <div class="flex items-center justify-center gap-2 md:gap-4 flex-wrap">
+                        <div class="text-center">
+                            <div class="counter-number" id="counterDays">0</div>
+                            <div class="counter-unit">Days</div>
+                        </div>
+                        <div class="counter-separator heartbeat">❤️</div>
+                        <div class="text-center">
+                            <div class="counter-number" id="counterHours" style="font-size: 2rem;">0</div>
+                            <div class="counter-unit">Hours</div>
+                        </div>
+                        <div class="counter-separator">:</div>
+                        <div class="text-center">
+                            <div class="counter-number" id="counterMinutes" style="font-size: 2rem;">0</div>
+                            <div class="counter-unit">Minutes</div>
+                        </div>
+                        <div class="counter-separator">:</div>
+                        <div class="text-center">
+                            <div class="counter-number" id="counterSeconds" style="font-size: 2rem;">0</div>
+                            <div class="counter-unit">Seconds</div>
+                        </div>
+                    </div>
+                    <div class="mt-3 font-inter text-xs text-pink-300/30">Since June 22, 2023 — and counting... 💕</div>
+                </div>
+            </div>
+            
+            <!-- PUZZLE -->
+            <p class="font-inter text-xs uppercase tracking-[0.3em] text-rose-400/60 mb-4">✦ A Message From Mohamed ✦</p>
+            <h2 class="font-dancing text-4xl md:text-6xl text-rose-300 mb-3">Arrange My Feelings</h2>
+            <p class="font-inter text-pink-200/50 mb-2 text-sm">Put the words in the right order to unlock my heart</p>
+            <p class="font-inter text-pink-300/30 text-xs mb-8">🐾 Hint: It's what I truly feel about us 🐾</p>
+            
+            <div id="resultArea" class="flex flex-wrap justify-center gap-3 mb-10 min-h-[60px] p-4 rounded-2xl border border-rose-500/20 bg-rose-950/20">
+                <div class="result-slot" data-index="0"><span class="text-pink-400/30 text-sm">1</span></div>
+                <div class="result-slot" data-index="1"><span class="text-pink-400/30 text-sm">2</span></div>
+                <div class="result-slot" data-index="2"><span class="text-pink-400/30 text-sm">3</span></div>
+                <div class="result-slot" data-index="3"><span class="text-pink-400/30 text-sm">4</span></div>
+                <div class="result-slot" data-index="4"><span class="text-pink-400/30 text-sm">5</span></div>
+            </div>
+            
+            <div id="wordCards" class="flex flex-wrap justify-center gap-4 mb-8"></div>
+            
+            <div class="flex justify-center gap-4">
+                <button id="resetBtn" class="px-6 py-2.5 rounded-full border border-rose-500/30 text-rose-300 font-inter text-sm hover:bg-rose-500/10 transition-all cursor-pointer">
+                    🔄 Try Again
+                </button>
+            </div>
+            
+            <div id="wrongMsg" class="hidden mt-6 font-inter text-sm text-red-400/80">
+                That's not quite right... Try again! 💕
+            </div>
+            <p id="attemptsText" class="font-inter text-xs text-pink-400/25 mt-4">Attempt: 0</p>
+        </div>
+    </section>
+
+    <!-- ====== SUCCESS / ROMANTIC SECTION ====== -->
+    <section id="successSection" class="hidden">
+        
+        <!-- Unlocked Message -->
+        <div class="min-h-screen flex flex-col items-center justify-center px-4 py-20 romantic-section">
+            <div class="max-w-3xl w-full text-center">
+                <div class="text-5xl mb-6" style="animation: gentleFloat 3s ease-in-out infinite;">💖</div>
+                <p class="font-inter text-xs uppercase tracking-[0.3em] text-rose-400/60 mb-4 slide-up">✦ You Unlocked My Heart ✦</p>
+                <h2 class="font-dancing text-5xl md:text-8xl text-rose-300 mb-6 slide-up slide-up-d1" style="text-shadow: 0 0 60px rgba(225,29,72,0.4);">
+                    Basma love Mohamed so much
+                </h2>
+                <div class="w-24 h-0.5 bg-gradient-to-r from-transparent via-rose-500 to-transparent mx-auto mb-8 slide-up slide-up-d2"></div>
+                <p class="font-playfair text-xl md:text-2xl text-pink-200/70 italic mb-4 slide-up slide-up-d3">
+                    "And that is the greatest truth I've ever known"
+                </p>
+                <p class="font-inter text-sm text-pink-300/40 mb-12 slide-up slide-up-d4">
+                    Since June 22, 2023 — Every single day, my love grows deeper 🌹
+                </p>
+                <div class="slide-up slide-up-d5 animate-bounce text-rose-400/50">
+                    <p class="font-inter text-xs mb-2">Scroll down for more love</p>
+                    <span class="text-2xl">↓</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Love Counter in Success Section -->
+        <div class="py-16 px-4 romantic-section">
+            <div class="max-w-lg mx-auto text-center">
+                <p class="font-inter text-xs uppercase tracking-[0.3em] text-rose-400/60 mb-4">✦ Our Love Grows Every Second ✦</p>
+                <h2 class="font-dancing text-3xl md:text-4xl text-rose-300 mb-6">Every Moment With You Counts</h2>
+                <div class="counter-box">
+                    <div class="flex items-center justify-center gap-2 md:gap-4 flex-wrap">
+                        <div class="text-center">
+                            <div class="counter-number" id="counterDays2">0</div>
+                            <div class="counter-unit">Days</div>
+                        </div>
+                        <div class="counter-separator heartbeat">❤️</div>
+                        <div class="text-center">
+                            <div class="counter-number" id="counterHours2" style="font-size: 2rem;">0</div>
+                            <div class="counter-unit">Hours</div>
+                        </div>
+                        <div class="counter-separator">:</div>
+                        <div class="text-center">
+                            <div class="counter-number" id="counterMinutes2" style="font-size: 2rem;">0</div>
+                            <div class="counter-unit">Minutes</div>
+                        </div>
+                        <div class="counter-separator">:</div>
+                        <div class="text-center">
+                            <div class="counter-number" id="counterSeconds2" style="font-size: 2rem;">0</div>
+                            <div class="counter-unit">Seconds</div>
+                        </div>
+                    </div>
+                    <div class="mt-3 font-inter text-xs text-pink-300/30">Since June 22, 2023 — and it only grows 💕</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Love for her eyes & hair -->
+        <div class="py-20 px-4 romantic-section">
+            <div class="max-w-4xl mx-auto">
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div class="promise-card text-center">
+                        <div class="text-4xl mb-4">👁️✨</div>
+                        <h3 class="font-dancing text-3xl text-rose-300 mb-4">Your Eyes</h3>
+                        <p class="font-playfair text-lg text-pink-200/60 italic leading-relaxed">
+                            "Your eyes hold galaxies I could explore for eternity. Every time I look into them, I find a new reason to fall in love. They are the most beautiful windows to the most beautiful soul I've ever known."
+                        </p>
+                        <p class="font-inter text-sm text-rose-400/50 mt-4">I could get lost in your eyes forever... and I'd never want to be found.</p>
+                    </div>
+                    <div class="promise-card text-center">
+                        <div class="text-4xl mb-4">💇‍♀️🌹</div>
+                        <h3 class="font-dancing text-3xl text-rose-300 mb-4">Your Hair</h3>
+                        <p class="font-playfair text-lg text-pink-200/60 italic leading-relaxed">
+                            "Your hair flows like a river of silk, and I'm mesmerized every single time the wind plays with it. It's the most beautiful thing — I dream of running my fingers through it every moment we're apart."
+                        </p>
+                        <p class="font-inter text-sm text-rose-400/50 mt-4">Your hair is my favorite place to get lost in... 💕</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Poetry Section -->
+        <div class="py-20 px-4 romantic-section">
+            <div class="max-w-3xl mx-auto text-center">
+                <p class="font-inter text-xs uppercase tracking-[0.3em] text-rose-400/60 mb-4">✦ Poetry For You ✦</p>
+                <h2 class="font-dancing text-4xl md:text-5xl text-rose-300 mb-12">Words From My Soul</h2>
+                <div class="space-y-10">
+                    <div class="promise-card">
+                        <p class="font-playfair text-lg md:text-xl text-pink-100/80 italic leading-relaxed">
+                            "In your eyes, I found my home,<br>
+                            In your heart, I found my love,<br>
+                            In your soul, I found my forever,<br>
+                            In your arms, I found my peace."
+                        </p>
+                    </div>
+                    <div class="promise-card">
+                        <p class="font-playfair text-lg md:text-xl text-pink-100/80 italic leading-relaxed">
+                            "Two souls with but a single thought,<br>
+                            Two hearts that beat as one,<br>
+                            Since the day I found you, Basma,<br>
+                            My forever had begun."
+                        </p>
+                    </div>
+                    <div class="promise-card">
+                        <p class="font-playfair text-lg md:text-xl text-pink-100/80 italic leading-relaxed">
+                            "You are the poem I never knew how to write,<br>
+                            And this life is the story I've always wanted to tell.<br>
+                            Every chapter with you is more beautiful,<br>
+                            Than any heaven could ever compel."
+                        </p>
+                    </div>
+                    <div class="promise-card">
+                        <p class="font-playfair text-lg md:text-xl text-pink-100/80 italic leading-relaxed">
+                            "I loved you yesterday, I love you still,<br>
+                            I always have, I always will.<br>
+                            Through every storm, through every hill,<br>
+                            My love for you, no space can fill."
+                        </p>
+                    </div>
+                    <div class="promise-card">
+                        <p class="font-playfair text-lg md:text-xl text-pink-100/80 italic leading-relaxed">
+                            "Roses are red, the sky is so blue,<br>
+                            No one in this world is as special as you.<br>
+                            Your smile is my sunrise, your laugh is my song,<br>
+                            With you is where my heart truly belongs."
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Promises Section -->
+        <div class="py-20 px-4 romantic-section">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-12">
+                    <p class="font-inter text-xs uppercase tracking-[0.3em] text-rose-400/60 mb-4">✦ My Vows To You ✦</p>
+                    <h2 class="font-dancing text-4xl md:text-5xl text-rose-300">My Promises</h2>
+                </div>
+                <div class="grid md:grid-cols-2 gap-5">
+                    <div class="promise-card flex items-start gap-4">
+                        <span class="text-2xl mt-0.5">🌹</span>
+                        <div><h4 class="font-playfair font-semibold text-rose-200 mb-1">Endless Love</h4><p class="font-inter text-sm text-pink-200/50">I promise to love you fiercely, gently, and endlessly — every single day of my life.</p></div>
+                    </div>
+                    <div class="promise-card flex items-start gap-4">
+                        <span class="text-2xl mt-0.5">🏠</span>
+                        <div><h4 class="font-playfair font-semibold text-rose-200 mb-1">Your Safe Place</h4><p class="font-inter text-sm text-pink-200/50">I promise to be your shelter in every storm, your comfort in every pain, your peace in every chaos.</p></div>
+                    </div>
+                    <div class="promise-card flex items-start gap-4">
+                        <span class="text-2xl mt-0.5">😊</span>
+                        <div><h4 class="font-playfair font-semibold text-rose-200 mb-1">Your Smile</h4><p class="font-inter text-sm text-pink-200/50">I promise to make you laugh every single day, even on your darkest ones. Your smile is my mission.</p></div>
+                    </div>
+                    <div class="promise-card flex items-start gap-4">
+                        <span class="text-2xl mt-0.5">💎</span>
+                        <div><h4 class="font-playfair font-semibold text-rose-200 mb-1">Always Choose You</h4><p class="font-inter text-sm text-pink-200/50">I promise to choose you — today, tomorrow, and every day after that. In every life, I'd find you.</p></div>
+                    </div>
+                    <div class="promise-card flex items-start gap-4">
+                        <span class="text-2xl mt-0.5">🌟</span>
+                        <div><h4 class="font-playfair font-semibold text-rose-200 mb-1">You Are Special</h4><p class="font-inter text-sm text-pink-200/50">I promise to never let you forget how incredibly special you are. You are my miracle, Basma.</p></div>
+                    </div>
+                    <div class="promise-card flex items-start gap-4">
+                        <span class="text-2xl mt-0.5">🤝</span>
+                        <div><h4 class="font-playfair font-semibold text-rose-200 mb-1">Hand in Hand</h4><p class="font-inter text-sm text-pink-200/50">I promise to hold your hand through all of life's adventures — the beautiful ones and the hard ones.</p></div>
+                    </div>
+                    <div class="promise-card flex items-start gap-4">
+                        <span class="text-2xl mt-0.5">🔒</span>
+                        <div><h4 class="font-playfair font-semibold text-rose-200 mb-1">My Heart Is Yours</h4><p class="font-inter text-sm text-pink-200/50">I promise my heart belongs to you and only you — now and forever. It's the safest place it could be.</p></div>
+                    </div>
+                    <div class="promise-card flex items-start gap-4">
+                        <span class="text-2xl mt-0.5">🌙</span>
+                        <div><h4 class="font-playfair font-semibold text-rose-200 mb-1">Goodnights & Goodmornings</h4><p class="font-inter text-sm text-pink-200/50">I promise you'll always be my first thought in the morning and my last wish at night.</p></div>
+                    </div>
+                    <div class="promise-card flex items-start gap-4">
+                        <span class="text-2xl mt-0.5">🐾</span>
+                        <div><h4 class="font-playfair font-semibold text-rose-200 mb-1">Cats & Love</h4><p class="font-inter text-sm text-pink-200/50">I promise we'll have the cutest cats together, and I'll love them almost as much as I love you. Almost. 😸</p></div>
+                    </div>
+                    <div class="promise-card flex items-start gap-4">
+                        <span class="text-2xl mt-0.5">♾️</span>
+                        <div><h4 class="font-playfair font-semibold text-rose-200 mb-1">Forever & Beyond</h4><p class="font-inter text-sm text-pink-200/50">I promise to love you beyond forever — because forever with you still wouldn't be enough time.</p></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Love Words Section -->
+        <div class="py-20 px-4 romantic-section">
+            <div class="max-w-3xl mx-auto text-center">
+                <p class="font-inter text-xs uppercase tracking-[0.3em] text-rose-400/60 mb-4">✦ From The Bottom Of My Heart ✦</p>
+                <h2 class="font-dancing text-4xl md:text-5xl text-rose-300 mb-12">Words of Love</h2>
+                <div class="space-y-6">
+                    <p class="font-playfair text-lg text-pink-100/70 italic">"You are the most beautiful thing that ever happened to me, Basma. Before you, I didn't know what love truly meant."</p>
+                    <p class="font-playfair text-lg text-pink-100/70 italic">"Every moment with you is a treasure I hold close to my heart. Your laughter is my favorite melody."</p>
+                    <p class="font-playfair text-lg text-pink-100/70 italic">"My heart beats only for you. Each beat whispers your name — Basma, Basma, Basma."</p>
+                    <p class="font-playfair text-lg text-pink-100/70 italic">"You are my sunshine on cloudy days, my calm in every storm, my reason to smile every morning."</p>
+                    <p class="font-playfair text-lg text-pink-100/70 italic">"I fall more in love with you every single day, and I didn't even think that was possible after how much I already loved you."</p>
+                    <p class="font-playfair text-lg text-pink-100/70 italic">"June 22, 2023 — the day the universe gave me its greatest gift: YOU. That was the day my life truly began."</p>
+                    <p class="font-playfair text-lg text-pink-100/70 italic">"Your eyes could light up the darkest night, and your smile could heal the deepest wound. You are magic, my love."</p>
+                    <p class="font-playfair text-lg text-pink-100/70 italic">"When I look at your hair flowing in the wind, I swear time stops just to admire you too."</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cat Section -->
+        <div class="py-20 px-4 romantic-section">
+            <div class="max-w-3xl mx-auto text-center">
+                <p class="font-inter text-xs uppercase tracking-[0.3em] text-rose-400/60 mb-4">✦ Because You Love Cats ✦</p>
+                <h2 class="font-dancing text-4xl md:text-5xl text-rose-300 mb-6">Kitties For My Kitty 🐱</h2>
+                <p class="font-inter text-sm text-pink-200/40 mb-10">Just like these cute cats, you make my heart go soft 🥺</p>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="promise-card text-center text-5xl py-8" style="animation: gentleFloat 3s ease-in-out infinite;">😺</div>
+                    <div class="promise-card text-center text-5xl py-8" style="animation: gentleFloat 3.5s ease-in-out infinite 0.3s;">😸</div>
+                    <div class="promise-card text-center text-5xl py-8" style="animation: gentleFloat 4s ease-in-out infinite 0.6s;">😻</div>
+                    <div class="promise-card text-center text-5xl py-8" style="animation: gentleFloat 3.2s ease-in-out infinite 0.9s;">🐱</div>
+                    <div class="promise-card text-center text-5xl py-8" style="animation: gentleFloat 3.8s ease-in-out infinite 1.2s;">😽</div>
+                    <div class="promise-card text-center text-5xl py-8" style="animation: gentleFloat 4.2s ease-in-out infinite 0.4s;">🐈</div>
+                    <div class="promise-card text-center text-5xl py-8" style="animation: gentleFloat 3.6s ease-in-out infinite 0.7s;">😺</div>
+                    <div class="promise-card text-center text-5xl py-8" style="animation: gentleFloat 3.3s ease-in-out infinite 1s;">💖</div>
+                </div>
+                <div class="mt-12 promise-card">
+                    <p class="font-playfair text-lg text-pink-100/70 italic">
+                        "If I had nine lives, I'd want to spend every single one of them loving you — just like a cat always finds its way home, I'll always find my way to you. 🐾"
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Final Password Section -->
+        <div class="py-24 px-4 romantic-section">
+            <div class="max-w-2xl mx-auto text-center">
+                <div class="text-6xl mb-6" style="animation: gentleFloat 3s ease-in-out infinite;">🔐</div>
+                <p class="font-inter text-xs uppercase tracking-[0.3em] text-rose-400/60 mb-4">✦ The Secret Password ✦</p>
+                <h2 class="font-dancing text-3xl md:text-4xl text-rose-300 mb-8">The Key To My Heart</h2>
+                <div class="promise-card py-10 px-8" style="animation: successGlow 3s ease-in-out infinite;">
+                    <p class="font-inter text-xs text-rose-400/50 uppercase tracking-widest mb-4">The Password Is</p>
+                    <h3 class="font-dancing text-4xl md:text-6xl text-white mb-4" style="text-shadow: 0 0 40px rgba(225,29,72,0.6);">
+                        "Basma love Mohamed so much"
+                    </h3>
+                    <div class="w-20 h-0.5 bg-gradient-to-r from-transparent via-rose-400 to-transparent mx-auto my-6"></div>
+                    <p class="font-playfair text-lg text-pink-200/60 italic">
+                        This isn't just a password — it's the truth that lives in my heart every moment of every day.
+                    </p>
+                </div>
+                <div class="mt-16 space-y-4">
+                    <p class="font-playfair text-xl text-rose-200/70 italic">"You are my today and all of my tomorrows."</p>
+                </div>
+            </div>
+        </div>
+
+    </section>
+</main>
+
+<!-- Music Button -->
+<button id="musicBtn" class="music-btn" title="Toggle Music">🎵</button>
+
+<!-- YouTube Player (hidden) -->
+<div id="youtubePlayer" style="position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;overflow:hidden;"></div>
+
+<script>
+// ====================== CONFIG ======================
+const CORRECT_ORDER = ['Basma', 'love', 'Mohamed', 'so', 'much'];
+const SCRAMBLED = ['so', 'much', 'Basma', 'love', 'Mohamed'];
+const LOVE_START = new Date('2023-06-22T00:00:00');
+
+let placedWords = [];
+let attempts = 0;
+let musicPlaying = false;
+let player;
+let counterInterval;
+
+// ====================== LOVE COUNTER ======================
+function updateCounter() {
+    const now = new Date();
+    const diff = now - LOVE_START;
+    
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+    
+    // Update puzzle section counter
+    const d1 = document.getElementById('counterDays');
+    const h1 = document.getElementById('counterHours');
+    const m1 = document.getElementById('counterMinutes');
+    const s1 = document.getElementById('counterSeconds');
+    if (d1) d1.textContent = days;
+    if (h1) h1.textContent = String(hours).padStart(2, '0');
+    if (m1) m1.textContent = String(minutes).padStart(2, '0');
+    if (s1) s1.textContent = String(seconds).padStart(2, '0');
+    
+    // Update success section counter
+    const d2 = document.getElementById('counterDays2');
+    const h2 = document.getElementById('counterHours2');
+    const m2 = document.getElementById('counterMinutes2');
+    const s2 = document.getElementById('counterSeconds2');
+    if (d2) d2.textContent = days;
+    if (h2) h2.textContent = String(hours).padStart(2, '0');
+    if (m2) m2.textContent = String(minutes).padStart(2, '0');
+    if (s2) s2.textContent = String(seconds).padStart(2, '0');
+}
+
+// ====================== WELCOME ======================
+document.getElementById('enterBtn').addEventListener('click', () => {
+    document.getElementById('welcome').classList.add('hide');
+    document.getElementById('mainContent').classList.remove('hidden');
+    document.getElementById('musicBtn').style.display = 'block';
+    initPuzzle();
+    startMusic();
+    initFloatingCats();
+    
+    // Start counter
+    updateCounter();
+    counterInterval = setInterval(updateCounter, 1000);
+});
+
+// ====================== YOUTUBE MUSIC ======================
+function startMusic() {
+    const tag = document.createElement('script');
+    tag.src = 'https://www.youtube.com/iframe_api';
+    document.head.appendChild(tag);
+    
+    window.onYouTubeIframeAPIReady = function() {
+        player = new YT.Player('youtubePlayer', {
+            height: '1',
+            width: '1',
+            videoId: '6L0sINBLsGU',
+            playerVars: {
+                autoplay: 1,
+                start: 197,
+                loop: 1,
+                playlist: '6L0sINBLsGU',
+                controls: 0,
+                showinfo: 0,
+                rel: 0,
+                modestbranding: 1,
+            },
+            events: {
+                'onReady': function(e) {
+                    e.target.playVideo();
+                    musicPlaying = true;
+                    updateMusicBtn();
+                },
+                'onStateChange': function(e) {
+                    if (e.data === YT.PlayerState.ENDED) {
+                        player.seekTo(197);
+                        player.playVideo();
+                    }
+                }
+            }
+        });
+    };
+}
+
+document.getElementById('musicBtn').addEventListener('click', () => {
+    if (!player) return;
+    if (musicPlaying) {
+        player.pauseVideo();
+        musicPlaying = false;
+    } else {
+        player.playVideo();
+        musicPlaying = true;
+    }
+    updateMusicBtn();
+});
+
+function updateMusicBtn() {
+    const btn = document.getElementById('musicBtn');
+    btn.textContent = musicPlaying ? '🎵' : '🔇';
+    btn.classList.toggle('playing', musicPlaying);
+}
+
+// ====================== PUZZLE ======================
+function initPuzzle() {
+    const container = document.getElementById('wordCards');
+    container.innerHTML = '';
+    placedWords = [];
+    
+    document.querySelectorAll('.result-slot').forEach(slot => {
+        slot.innerHTML = `<span class="text-pink-400/30 text-sm">${parseInt(slot.dataset.index) + 1}</span>`;
+        slot.classList.remove('filled', 'correct', 'wrong');
+    });
+    
+    document.getElementById('wrongMsg').classList.add('hidden');
+    
+    SCRAMBLED.forEach((word, i) => {
+        const card = document.createElement('div');
+        card.className = 'word-card px-6 py-3 rounded-xl bg-gradient-to-r from-rose-600/20 to-pink-600/20 border border-rose-500/30 font-playfair text-lg md:text-xl text-rose-100 backdrop-blur-sm select-none';
+        card.textContent = word;
+        card.dataset.word = word;
+        card.style.animation = `slideUp 0.5s ease-out ${i * 0.1}s forwards`;
+        card.style.opacity = '0';
+        card.addEventListener('click', () => placeWord(word, card));
+        container.appendChild(card);
+    });
+}
+
+function placeWord(word, cardEl) {
+    if (cardEl.classList.contains('placed')) return;
+    if (placedWords.length >= 5) return;
+    
+    cardEl.classList.add('placed');
+    placedWords.push(word);
+    
+    const slotIndex = placedWords.length - 1;
+    const slot = document.querySelector(`.result-slot[data-index="${slotIndex}"]`);
+    slot.innerHTML = `<span class="font-playfair text-lg text-rose-100">${word}</span>`;
+    slot.classList.add('filled');
+    
+    playClickSound();
+    
+    if (placedWords.length === 5) {
+        setTimeout(checkAnswer, 500);
+    }
+}
+
+function checkAnswer() {
+    const isCorrect = placedWords.every((word, i) => word === CORRECT_ORDER[i]);
+    const slots = document.querySelectorAll('.result-slot');
+    
+    if (isCorrect) {
+        slots.forEach(s => s.classList.add('correct'));
+        onSuccess();
+    } else {
+        slots.forEach((s, i) => {
+            if (placedWords[i] !== CORRECT_ORDER[i]) s.classList.add('wrong');
+            else s.classList.add('correct');
+        });
+        attempts++;
+        document.getElementById('attemptsText').textContent = `Attempt: ${attempts}`;
+        document.getElementById('wrongMsg').classList.remove('hidden');
+        document.getElementById('resultArea').classList.add('shake');
+        setTimeout(() => document.getElementById('resultArea').classList.remove('shake'), 600);
+        setTimeout(() => initPuzzle(), 1800);
+    }
+}
+
+function onSuccess() {
+    playSuccessSound();
+    createConfetti();
+    createHeartBurst();
+    
+    setTimeout(() => {
+        document.getElementById('puzzleSection').style.transition = 'opacity 1s ease, transform 1s ease';
+        document.getElementById('puzzleSection').style.opacity = '0';
+        document.getElementById('puzzleSection').style.transform = 'translateY(-40px)';
+        
+        setTimeout(() => {
+            document.getElementById('puzzleSection').style.display = 'none';
+            const successSection = document.getElementById('successSection');
+            successSection.classList.remove('hidden');
+            successSection.scrollIntoView({ behavior: 'smooth' });
+        }, 1000);
+    }, 2000);
+}
+
+document.getElementById('resetBtn').addEventListener('click', () => initPuzzle());
+
+// ====================== SOUNDS ======================
+function playClickSound() {
+    try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.frequency.value = 800; osc.type = 'sine';
+        gain.gain.setValueAtTime(0.1, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1);
+        osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.1);
+    } catch(e) {}
+}
+
+function playSuccessSound() {
+    try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        [523.25, 659.25, 783.99, 1046.50, 1318.51].forEach((freq, i) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain); gain.connect(ctx.destination);
+            osc.frequency.value = freq; osc.type = 'sine';
+            const t = ctx.currentTime + i * 0.2;
+            gain.gain.setValueAtTime(0.15, t);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.6);
+            osc.start(t); osc.stop(t + 0.6);
+        });
+    } catch(e) {}
+}
+
+// ====================== EFFECTS ======================
+function createConfetti() {
+    const colors = ['#e11d48', '#ec4899', '#f43f5e', '#fb7185', '#fda4af', '#fff', '#fbbf24'];
+    for (let i = 0; i < 80; i++) {
+        const el = document.createElement('div');
+        el.className = 'confetti';
+        el.style.left = Math.random() * 100 + 'vw';
+        el.style.width = (Math.random() * 10 + 5) + 'px';
+        el.style.height = (Math.random() * 10 + 5) + 'px';
+        el.style.background = colors[Math.floor(Math.random() * colors.length)];
+        el.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+        el.style.setProperty('--fall-dur', (Math.random() * 2 + 2) + 's');
+        el.style.animationDelay = Math.random() * 1 + 's';
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 5000);
+    }
+}
+
+function createHeartBurst() {
+    const hearts = ['❤️', '💖', '💕', '💗', '💓', '🌹', '✨'];
+    for (let i = 0; i < 20; i++) {
+        const el = document.createElement('div');
+        el.className = 'heart-particle';
+        el.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+        el.style.left = '50%'; el.style.top = '50%';
+        el.style.setProperty('--dx', (Math.random() - 0.5) * 600 + 'px');
+        el.style.setProperty('--dy', (Math.random() - 0.5) * 600 + 'px');
+        el.style.animationDelay = Math.random() * 0.5 + 's';
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 3000);
+    }
+}
+
+// ====================== FLOATING CATS ======================
+function initFloatingCats() {
+    const container = document.getElementById('catsContainer');
+    const cats = ['🐱', '😺', '😸', '😻', '😽', '🐈', '🐾'];
+    for (let i = 0; i < 12; i++) {
+        const cat = document.createElement('div');
+        cat.className = 'floating-cat';
+        cat.textContent = cats[Math.floor(Math.random() * cats.length)];
+        cat.style.left = Math.random() * 95 + '%';
+        cat.style.top = Math.random() * 95 + '%';
+        cat.style.setProperty('--dur', (Math.random() * 4 + 3) + 's');
+        cat.style.setProperty('--ty', (Math.random() * -30 - 10) + 'px');
+        cat.style.setProperty('--rot1', (Math.random() * 10 - 5) + 'deg');
+        cat.style.setProperty('--rot2', (Math.random() * 10 - 5) + 'deg');
+        cat.style.animationDelay = Math.random() * 3 + 's';
+        cat.style.fontSize = (Math.random() * 1.5 + 1) + 'rem';
+        container.appendChild(cat);
+    }
+}
+
+// ====================== INTERACTIVE BACKGROUND ======================
+const canvas = document.getElementById('bgCanvas');
+const ctx = canvas.getContext('2d');
+let mouseX = window.innerWidth / 2;
+let mouseY = window.innerHeight / 2;
+let particles = [];
+
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+document.addEventListener('mousemove', (e) => {
+    mouseX = e.clientX; mouseY = e.clientY;
+    if (Math.random() > 0.5) {
+        particles.push({
+            x: e.clientX, y: e.clientY,
+            size: Math.random() * 3 + 1, life: 1,
+            decay: Math.random() * 0.02 + 0.01,
+            vx: (Math.random() - 0.5) * 1, vy: (Math.random() - 0.5) * 1,
+            isHeart: Math.random() > 0.7,
+        });
+    }
+});
+
+for (let i = 0; i < 50; i++) {
+    particles.push({
+        x: Math.random() * window.innerWidth, y: Math.random() * window.innerHeight,
+        size: Math.random() * 2 + 0.5, life: 1, decay: 0,
+        vx: (Math.random() - 0.5) * 0.3, vy: (Math.random() - 0.5) * 0.3,
+        isHeart: false, permanent: true,
+        baseX: Math.random() * window.innerWidth, baseY: Math.random() * window.innerHeight,
+    });
+}
+
+function drawHeart(ctx, x, y, size) {
+    ctx.beginPath();
+    const topCurveHeight = size * 0.3;
+    ctx.moveTo(x, y + topCurveHeight);
+    ctx.bezierCurveTo(x, y, x - size / 2, y, x - size / 2, y + topCurveHeight);
+    ctx.bezierCurveTo(x - size / 2, y + (size + topCurveHeight) / 2, x, y + (size + topCurveHeight) / 1.5, x, y + size);
+    ctx.bezierCurveTo(x, y + (size + topCurveHeight) / 1.5, x + size / 2, y + (size + topCurveHeight) / 2, x + size / 2, y + topCurveHeight);
+    ctx.bezierCurveTo(x + size / 2, y, x, y, x, y + topCurveHeight);
+    ctx.closePath();
+}
+
+function animateParticles() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const grdX = (mouseX / canvas.width) * 0.4 + 0.3;
+    const grdY = (mouseY / canvas.height) * 0.4 + 0.3;
+    const gradient = ctx.createRadialGradient(canvas.width * grdX, canvas.height * grdY, 0, canvas.width * grdX, canvas.height * grdY, canvas.width * 0.7);
+    gradient.addColorStop(0, 'rgba(225, 29, 72, 0.06)');
+    gradient.addColorStop(0.5, 'rgba(136, 19, 55, 0.03)');
+    gradient.addColorStop(1, 'transparent');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    particles = particles.filter(p => p.life > 0 || p.permanent);
+    particles.forEach(p => {
+        if (p.permanent) {
+            const dx = mouseX - p.baseX, dy = mouseY - p.baseY;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < 200) { p.x = p.baseX - dx * 0.02; p.y = p.baseY - dy * 0.02; }
+            else { p.x += (p.baseX - p.x) * 0.02; p.y += (p.baseY - p.y) * 0.02; }
+            p.baseX += p.vx; p.baseY += p.vy;
+            if (p.baseX < 0 || p.baseX > canvas.width) p.vx *= -1;
+            if (p.baseY < 0 || p.baseY > canvas.height) p.vy *= -1;
+            ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(225, 29, 72, 0.3)'; ctx.fill();
+        } else {
+            p.x += p.vx; p.y += p.vy; p.life -= p.decay;
+            if (p.isHeart) {
+                ctx.save(); ctx.globalAlpha = p.life;
+                drawHeart(ctx, p.x, p.y, p.size * 4);
+                ctx.fillStyle = 'rgba(225, 29, 72, 0.6)'; ctx.fill(); ctx.restore();
+            } else {
+                ctx.beginPath(); ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(225, 29, 72, ${p.life * 0.5})`; ctx.fill();
+            }
+        }
+    });
+    requestAnimationFrame(animateParticles);
+}
+animateParticles();
+
+document.addEventListener('touchmove', (e) => {
+    const touch = e.touches[0];
+    mouseX = touch.clientX; mouseY = touch.clientY;
+});
+</script>
+
+</body>
+</html>
